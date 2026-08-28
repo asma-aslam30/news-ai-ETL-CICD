@@ -20,7 +20,9 @@ A Dockerized ETL pipeline that loads NYC Yellow Taxi trip data into PostgreSQL, 
 ```
 CSV file (data/) --> app.py (pandas, chunked read) --> PostgreSQL --> pgAdmin (browse)
 ```
-
+```
+CSV file (data/) --> app.py (pandas, chunked read) --> PostgreSQL --> pgAdmin (browse)
+```
 - **`app.py`** reads a CSV in chunks, lowercases/cleans column names, casts integer columns to pandas' nullable `Int64` dtype (so missing values don't force a float64 column and break the Postgres `INTEGER` schema), and inserts each chunk into a `yellow_taxi_data` table.
 - **PostgreSQL** stores the loaded data.
 - **pgAdmin** gives you a web UI to browse the database.
