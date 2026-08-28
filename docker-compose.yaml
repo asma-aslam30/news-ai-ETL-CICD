@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 10s
+      retries: 5
+      start_period: 5s
+    restart: always
+
+  loader:
+    build: .
+    container_name: taxi_data_loader
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_NAME: postgres
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      CSV_PATH: /data/yellow_tripdata_2015-01.csv
+    volumes:
+      # Put yellow_tripdata_2015-01.csv in a local ./data folder before running
+      - ./data:/data:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin4_container
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com
+      PGADMIN_DEFAULT_PASSWORD: root
+    ports:
+      - "5051:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  postgres-db-volume:

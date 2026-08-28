@@ -1,0 +1,114 @@
+name: CD - prod (main) branch
+
+# Runs on PRs targeting main (so the merge is gated on tests passing)
+# and on pushes to main (which only happen once a PR has actually been
+# merged). The build-and-push job is restricted to the push case, so
+# nothing gets published to the registry until code is really on main.
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run pytest
+        run: pytest -v
+
+  integration-test:
+    needs: test
+    runs-on: ubuntu-latest
+
+    # Spin up a real Postgres for this job, the same way docker-compose
+    # does locally. This proves the loader actually works end-to-end,
+    # not just that the transform function behaves in isolation.
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Load sample data into Postgres
+        env:
+          DB_HOST: localhost
+          DB_PORT: "5432"
+          DB_NAME: postgres
+          DB_USER: postgres
+          DB_PASSWORD: postgres
+          CSV_PATH: tests/fixtures/sample_trips.csv
+        run: python app.py
+
+      - name: Verify rows landed in the table
+        env:
+          PGPASSWORD: postgres
+        run: |
+          sudo apt-get update && sudo apt-get install -y postgresql-client
+          count=$(psql -h localhost -U postgres -d postgres -tAc "SELECT COUNT(*) FROM yellow_taxi_data;")
+          echo "Row count: $count"
+          test "$count" -eq 5
+
+  build-and-push:
+    needs: integration-test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set lowercase repository name
+        run: echo "REPO_LC=${GITHUB_REPOSITORY,,}" >> "$GITHUB_ENV"
+
+      - name: Build and push image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ghcr.io/${{ env.REPO_LC }}/taxi-loader:latest
+            ghcr.io/${{ env.REPO_LC }}/taxi-loader:${{ github.sha }}

@@ -1,0 +1,38 @@
+name: CI - dev branch
+
+# This is the "any change happens in dev first" gate. It runs whenever
+# someone pushes directly to dev, and - more importantly - whenever a
+# pull request is opened targeting dev. Combined with a branch protection
+# rule on dev ("require this check to pass before merging"), it means a
+# feature branch cannot be merged into dev until pytest is green.
+on:
+  push:
+    branches: [dev]
+  pull_request:
+    branches: [dev]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Run pytest
+        run: pytest -v
+
+      - name: Lint with flake8
+        run: |
+          pip install flake8
+          # Fail only on real errors (syntax errors, undefined names).
+          # Style nitpicks (E/W codes) don't block the pipeline.
+          flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics

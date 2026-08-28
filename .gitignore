@@ -1,0 +1,44 @@
+# Large/raw data files - don't commit these, they belong in data/ locally
+# or in cloud storage, not git history. The tiny CI fixture is explicitly
+# un-ignored below so it still gets committed.
+data/
+*.csv
+!tests/fixtures/*.csv
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+.coverage.*
+coverage.xml
+
+# Virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Environment/secrets - never commit real credentials
+.env
+.env.*
+!.env.example
+
+# Docker
+*.log
+
+# Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+# OS
+Thumbs.db
