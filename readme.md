@@ -7,7 +7,7 @@ A Dockerized ETL pipeline that loads NYC Yellow Taxi trip data into PostgreSQL, 
 - [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
 - [Local Setup](#local-setup)
-- [Running the Pipeline](#running-the-pipeline)
+- [Running the Pipeline](#running-the-pipeline)....
 - [Running Tests Locally](#running-tests-locally)
 - [CI/CD Overview](#cicd-overview)
 - [Testing the CI/CD Pipeline Through Pytest](#testing-the-cicd-pipeline-through-pytest)
