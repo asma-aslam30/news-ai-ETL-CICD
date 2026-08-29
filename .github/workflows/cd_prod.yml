@@ -81,7 +81,7 @@ jobs:
           sudo apt-get update && sudo apt-get install -y postgresql-client
           count=$(psql -h localhost -U postgres -d postgres -tAc "SELECT COUNT(*) FROM yellow_taxi_data;")
           echo "Row count: $count"
-          test "$count" -eq 5
+          test "$count" -eq 10
 
   build-and-push:
     needs: integration-test
