@@ -174,7 +174,7 @@ def taxi_dataframe():
 def sample_csv(tmp_path, taxi_dataframe):
     """Create a temporary CSV using the supplied taxi dataset."""
 
-    path = tmp_path / "sample_taxi.csv"
+    path = tmp_path / "sample_trips.csv"
 
     taxi_dataframe.to_csv(path, index=False)
 
