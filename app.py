@@ -1,8 +1,7 @@
 import os
 import pandas as pd
 from sqlalchemy import create_engine, text
-# lets test the CI/Cd pipeline
-# lets test the CI/Cd pipeline
+ 
 
 # lets test the CI/Cd pipeline
 DB_HOST = os.environ.get('DB_HOST', 'postgres')
