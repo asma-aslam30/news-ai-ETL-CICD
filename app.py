@@ -45,6 +45,7 @@ def get_engine():
     """Build a SQLAlchemy engine from the DB_* environment variables."""
     url = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
     return create_engine(url)
+    print("url: ", url)
 
 
 def create_table(engine):
