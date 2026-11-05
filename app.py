@@ -48,6 +48,7 @@ def get_engine():
     url = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
     return create_engine(url)
     print(f'Connected to Postgres at {url}')
+    print(f'Connected to Postgres at {url}')
 
 
 def create_table(engine):
