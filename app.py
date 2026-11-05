@@ -3,6 +3,8 @@ import pandas as pd
 from sqlalchemy import create_engine, text
 
 # lets test the CI/Cd pipeline
+
+# lets test the CI/Cd pipeline
 DB_HOST = os.environ.get('DB_HOST', 'postgres')
 DB_PORT = os.environ.get('DB_PORT', '5432')
 DB_NAME = os.environ.get('DB_NAME', 'postgres')
@@ -45,6 +47,7 @@ def get_engine():
     """Build a SQLAlchemy engine from the DB_* environment variables."""
     url = f'postgresql+psycopg2://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
     return create_engine(url)
+    print(f'Connected to Postgres at {url}')
 
 
 def create_table(engine):
